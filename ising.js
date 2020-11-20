@@ -119,7 +119,6 @@ function energy(x, y, N, b){
     return bond_energy(x, y, N, b) + field_energy(x, y, N, b);
 }
 
-
 function energy_difference(x, y, N, b){
     return -2*energy(x,y,N,b);
 }
@@ -470,7 +469,7 @@ function update_pause(){
         document.getElementById('pause').value = 'Start';
         dodraw = false;
     } else {
-        document.getElementById('pause').value = 'Pause';
+        document.getElementById('pause').value = 'Pausa';
         requestAnimationFrame(tick, c);
         dodraw = true;
     }

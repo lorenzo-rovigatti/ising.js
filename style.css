@@ -1,23 +1,39 @@
-body {
-    font-family:"Times New Roman", Times, serif;
+html, body {
+  width:  95%;
+  height: 95%;
+  margin: 0px;
+  font-family: 'Quattrocento', serif;
+  font-size: 14px;
 }
 
-#big {
-    margin: 0 auto;
-    width: 930px;
-    padding: 0px;
-    line-height: 1em;
+a {
+    color: rgb(45, 120, 80);
 }
 
-#ising {
-    float: left;
-    color: red;
-    width: 512px;
-    height: 512px;
-    position: 'absolute';
-    left: 10px;
-    top: 10px;
-    border: 1px solid black;
+h1 {
+    font-size: 46px;
+    margin-bottom: 0px;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+#title {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(230,230,230,0.5);
+    text-align: center;
+    width: 100%;
+	height: 120px;
+}
+
+#container {
+	border: 1px solid black;
+	margin: 120px auto auto auto;
+	width: 512px;
+	height: 512px;
 }
 
 .withspace {
@@ -33,24 +49,23 @@ pre.code {
     margin: 0px;
 }
 
-#ising {
-    color: red;
-    width: 512px;
-    height: 512px;
-    position: 'relative';
-    left: 10px;
-    top: 10px;
-    border: 1px solid black;
+#controllers {
+	float: left;
+    background-color: rgba(230,230,230,0.7);
+	width: 280px;
+    padding: 20px;
 }
 
-#panelcontainer {
-    float: left;
-    left: 220px;
-    top: 10px;
-    width: 400px;
-    height: 512px;
-    border: solid 1px black;
+#data {
+	float: right;
+	background-color: rgba(230,230,230,0.7);
+	width: 280px;
+    padding: 20px;
+}
 
+button {
+	padding: 2px;
+	margin: 5px;
 }
 
 #panel {
