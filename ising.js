@@ -466,10 +466,10 @@ function update_method() {
 
 function update_pause(){
     if (dodraw == true){
-        document.getElementById('pause').value = 'Start';
+        document.getElementById('pause').innerHTML = 'Start';
         dodraw = false;
     } else {
-        document.getElementById('pause').value = 'Pausa';
+        document.getElementById('pause').innerHTML = 'Pausa';
         requestAnimationFrame(tick, c);
         dodraw = true;
     }

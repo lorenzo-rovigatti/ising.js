@@ -40,7 +40,7 @@
 	  
 	  <p>Note: the graph can slow down the simulation at long times.  To speed up
 		simulation, select 'none' for 'Graph type'.  Data is still being collected.</p>
-    </div>
+	</div>
 	
 	<div id="data">
 	  <h2>Risultati</h2>
@@ -61,11 +61,11 @@
           <option value="mag">m(t)</option>
         </select>
 		<br/>
-		<input type='button' id='resetdata' value='Reset' onclick='init_measurements()'></input>
-        <input type='button' id='downloaddata' value='Scarica dati' onclick='download_measurements()'></input>
+		<button id='resetdata' onclick='init_measurements()'>Reset</button>
+        <button id='downloaddata' onclick='download_measurements()'>Scarica dati</button>
 		<br/>
-        <input type='button' id='downloadgraph' value='Scarica grafico' onclick='download_graph()'></input>
-        <input type='button' id='downloadgraph' value='Scarica figura' onclick='download_field()'></input>
+        <button id='downloadgraph' onclick='download_graph()'>Scarica grafico</button>
+        <button id='downloadgraph' onclick='download_field()'>Scarica figura</button>
 	  </div>
 	</div>
 	
@@ -115,9 +115,9 @@
 		
         <div>
           <center>
-            <input type='button' id='dostep' value='Passo' onclick='update_step()'></input>
-            <input type='button' id='pause' value='Pausa' onclick='update_pause()'></input>
-            <input type='button' id='restart' value='Reset' onclick='update_restart()'></input>
+            <button id='dostep' onclick='update_step()'>Passo</button>
+            <button id='pause' onclick='update_pause()'>Pausa</button>
+            <button id='restart' onclick='update_restart()'>Reset</button>
           </center>
         </div>
       </div>
