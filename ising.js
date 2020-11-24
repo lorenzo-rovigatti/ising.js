@@ -37,13 +37,14 @@ var ctxgraph;
 var empty;
 var frameskip = 1;
 var onefill = 0;
-var dodraw = true;
+var dodraw = false;
 var gh = 150;
 var gw = 370;
 
 function rgb(r,g,b) {
     return 'rgb('+r+','+g+','+b+')';
 }
+
 function log10(val) {
     return Math.log(val) / Math.LN10;
 }
@@ -318,15 +319,15 @@ function update_measurements_labels(){
     lble = document.getElementById('label_energy');
     lblm = document.getElementById('label_mag');
 
-    lblt.innerHTML = "time = "+toFixed(gt, 4, ' ')+"   sweeps/sec = "+toFixed(sps, 3, ' ');
-    lble.innerHTML = "e = "+toFixed(genergy, 5, ' ');
-    lblm.innerHTML = "m = "+toFixed(gmag, 5, ' ');
+    lblt.innerHTML = "time = "+toFixed(gt, 3, ' ')+"   sweeps/sec = "+toFixed(sps, 3, ' ');
+    lble.innerHTML = "e = "+toFixed(genergy, 3, ' ');
+    lblm.innerHTML = "m = "+toFixed(gmag, 3, ' ');
 
-    lble.innerHTML += "   &lt;e&gt; = "+toFixed(ge_avg, 5, ' ');
-    lblm.innerHTML += "   &lt;m&gt; = "+toFixed(gm_avg, 5, ' ');
+    lble.innerHTML += "   &lt;e&gt; = "+toFixed(ge_avg, 3, ' ');
+    lblm.innerHTML += "   &lt;m&gt; = "+toFixed(gm_avg, 3, ' ');
 
-    lble.innerHTML += "   Var(e) = "+toFixed(ge_var, 7, ' ');
-    lblm.innerHTML += "   Var(m) = "+toFixed(gm_var, 7, ' ');
+    lble.innerHTML += "   Var(e) = "+toFixed(ge_var, 3, ' ');
+    lblm.innerHTML += "   Var(m) = "+toFixed(gm_var, 3, ' ');
 }
 
 function hidden_link_download(uri, filename){
@@ -467,9 +468,12 @@ function update_method() {
 function update_pause(){
     if (dodraw == true){
         document.getElementById('pause').innerHTML = 'Start';
+        document.getElementById('pause').classList.remove("pure-button-active");
         dodraw = false;
-    } else {
+    } 
+    else {
         document.getElementById('pause').innerHTML = 'Pausa';
+        document.getElementById('pause').classList.add("pure-button-active");
         requestAnimationFrame(tick, c);
         dodraw = true;
     }
@@ -590,45 +594,6 @@ function calculateFlipTable(temp, field){
     wolfph = 1 - Math.exp( -2. * Math.abs(field) / temp );
 }
 
-/*function calculateFlipTable(temp){
-    gtable_de = [];
-    gtable_doflip = [];
-    gtable_flipprob = [];
-    for (var i=0; i<5; i++){
-        de = -2*(2*i - 4) - gfield;
-        arg = -de / temp;
-        gtable_de[i] = de;
-        gtable_doflip[i] = 1*(de<=0);
-        gtable_flipprob[i] = Math.exp(arg) * (temp > 0);
-    }
-    for (var i=0; i<5; i++){
-        de = 2*(2*i - 4) + gfield;
-        arg = -de / temp;
-        gtable_de[i+5] = de;
-        gtable_doflip[i+5] = 1*(de<=0);
-        gtable_flipprob[i+5] = Math.exp(arg) * (temp > 0);
-    }
-
-    wolfp = 1 - Math.exp( -2./temp );
-}
-
-function update_metropolis(){
-    var x = Math.floor(Math.random()*gN);
-    var y = Math.floor(Math.random()*gN);
-    var ind = x + y*gN;
-    var neigh = neighborCount(x, y, gN, gboard);
-
-    var ind2 = Math.round(neigh + 5*(gboard[ind]+1)/2);
-    if (gtable_doflip[ind2] || Math.random() < gtable_flipprob[ind2]){
-        gboard[ind] = -gboard[ind];
-        put_pixel(x, y, gpx_size, gboard[x+y*gN]);
-
-        genergy += 2.0*de/(gN*gN);
-        gmag += 2.0*gboard[ind]/(gN*gN);
-    }
-    gt += 1.0/(gN*gN);
-}*/
-
 /*===============================================================================
     initialization and drawing
 ================================================================================*/
@@ -665,8 +630,6 @@ function change_num(){
     init_board(gN, null);
 }
 
-
-
 var init = function() {
     // create the canvas element
     empty = document.createElement('canvas');
@@ -685,6 +648,16 @@ var init = function() {
     Number.prototype.mod = function(n) {
         return ((this%n)+n)%n;
     }
+    
+    const checkbox = document.getElementById('toggle-advanced-controls')
+    checkbox.addEventListener('change', (event) => {
+        if(event.target.checked) {
+            document.getElementById("advanced-controls").style.display = "block";
+        }
+        else {
+            document.getElementById("advanced-controls").style.display = "none";
+        }
+    });
 
     document.getElementById('label_temp_input').addEventListener("keydown", function(e) {
         if (e.keyCode == 13){
@@ -741,23 +714,22 @@ var init = function() {
     registerAnimationRequest();
     requestAnimationFrame(tick, c);
 };
+
 window.onload = init;
 
 
 // Provides requestAnimationFrame in a cross browser way.
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 function registerAnimationRequest() {
-if ( !window.requestAnimationFrame ) {
-    window.requestAnimationFrame = ( function() {
-      return window.webkitRequestAnimationFrame ||
-      window.mozRequestAnimationFrame || // comment out if FF4 is slow (it caps framerate at ~30fps)
-      window.oRequestAnimationFrame ||
-      window.msRequestAnimationFrame ||
-      function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
-              window.setTimeout( callback, 1 ); /*1000 / 60 );*/
-      };
-    } )();
+    if ( !window.requestAnimationFrame ) {
+        window.requestAnimationFrame = ( function() {
+        return window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame || // comment out if FF4 is slow (it caps framerate at ~30fps)
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
+                window.setTimeout( callback, 1 ); /*1000 / 60 );*/
+        };
+        } )();
+    }
 }
-}
-
-
