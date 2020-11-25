@@ -131,7 +131,7 @@ function update_metropolis(){
         gboard[ind] = -gboard[ind];
 
         if (!onefill) {
-            put_pixel(x, y, gpx_size, gboard[x+y*gN]);
+            put_pixel(x, y, gpx_size, gboard[x + y * gN]);
         }
 
         genergy += 1.0 * de / (gN*gN);
@@ -146,7 +146,7 @@ function update_wolff() {
     var y = Math.floor(Math.random()*gN);
     var ind = x + y*gN;
 
-    var single_bond_energy = function (cur_ind, next_ind) {
+    var single_bond_energy = function(cur_ind, next_ind) {
         cur_ind = Number(cur_ind);
         next_ind = Number(next_ind);
         if ((next_ind < gN * gN) && (cur_ind < gN * gN)) {
@@ -410,21 +410,20 @@ function update_field(){
     reset_measurements();
 }
 function update_frames(){
-    frameval = parseFloat(document.getElementById('frames').value);
-    if (update_func=='metropolis') {
-        frameskip = Math.pow(10, frameval);
+    frameskip = parseInt(document.getElementById('frames').value);
+    if (update_func == 'metropolis') {
         onefill = frameskip > 2*gN*gN ? 1 : 0;
-    } else {
-      frameskip = frameval;
+    }
+    else {
         onefill = frameskip > 3 ? 1 : 0;
     }
-    document.getElementById('label_frames').innerHTML = toFixed(frameskip,6);
+    document.getElementById('label_frames').innerHTML = frameskip.toFixed(0);
 }
 
 function update_display(){
     document.getElementById('label_temp').innerHTML = gT.toFixed(3);
     document.getElementById('label_field').innerHTML = gfield.toFixed(3);
-    document.getElementById('label_frames').innerHTML = frameskip.toFixed(6);
+    document.getElementById('label_frames').innerHTML = frameskip.toFixed(0);
 }
 
 function update_method() {
@@ -432,21 +431,9 @@ function update_method() {
     var frame_label = document.getElementById('label_frames');
     if (document.getElementById('method_wolff').checked) {
         update_func = 'wolff';
-        frameskip = 2;
-        frame_label.innerHTML = frameskip.toFixed(0);
-        frame_slider.step = 1;
-        frame_slider.max = 20;
-        frame_slider.min = 1;
-        frame_slider.value = frameskip;
     } 
     else  {
         update_func = 'metropolis';
-        frameskip = Math.pow(10.,0);
-        frame_label.innerHTML = frameskip.toFixed(6);
-        frame_slider.step = 0.01;
-        frame_slider.max=2;
-        frame_slider.min=-2;
-        frame_slider.value = 0;
     }
 }
 
@@ -600,12 +587,12 @@ var tick = function(T) {
     if (update_func=='metropolis') {
       skip = skip*gN*gN;
     }
-    if (dodraw == true) {
-        for (var i=0; i<skip; i++){
+    if(dodraw == true) {
+        for(var i = 0; i < skip; i++){
             frame++;
             update();
         }
-        sweeps = 1.0*frame / (gN*gN);
+        sweeps = 1.0 * frame / (gN*gN);
         draw_all();
         requestAnimationFrame(tick, c);
     }
@@ -673,11 +660,9 @@ var init = function() {
     document.getElementById('label_frames_input').addEventListener("keydown", function(e) {
         if (e.keyCode == 13){
             e.preventDefault();
-            tval = parseFloat(document.getElementById('label_frames_input').value);
-            if (update_func=='metropolis')
-                document.getElementById('frames').value = log10(tval);
-            else
-                document.getElementById('frames').value = tval;
+            tval = parseInt(document.getElementById('label_frames_input').value);
+
+            document.getElementById('frames').value = tval;
             update_frames();
             undotextbox('label_frames_input');
         }

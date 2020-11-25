@@ -29,12 +29,12 @@
                             <form class="pure-form pure-form-stacked" id="control-form">
                                 <fieldset>
                                     <label for="temp">Temperatura</label>
-                                    <input style='width:150px;' type="range" id="temp" min=0 max=10 step=0.001 oninput='update_temp()' onchange="update_temp()"/>
+                                    <input style='width:150px;' type="range" id="temp" min=0 max=5 step=0.001 oninput='update_temp()' onchange="update_temp()"/>
                                     <span onclick='dotextbox(this.id)' class='eb_span' id="label_temp"></span>
                                     <input style='width: 80px; display: none;' id='label_temp_input' type='text' value='' onblur='undotextbox(this.id)'>
                                     
                                     <label for="field">Campo</label>
-                                    <input style="width:150px;" type="range" id="field" min=-5 max=5 step=0.00001 value=0.0 oninput='update_field()' onchange="update_field()"/>
+                                    <input style="width:150px;" type="range" id="field" min=-2 max=2 step=0.00001 value=0.0 oninput='update_field()' onchange="update_field()"/>
                                     <span onclick='dotextbox(this.id)' class='eb_span' id="label_field"></span>
                                     <input style='width: 80px; display: none;' id='label_field_input' type='text' value='' onblur='undotextbox(this.id)'>
                                 </fieldset>
@@ -45,7 +45,7 @@
                                     
                                 <fieldset id="advanced-controls">
                                     <label for="frames">Frequenza di aggiornamento</label>
-                                    <input style="width:150px;" type="range" id="frames" min=-2 max=2 step=0.00001 value=0 oninput='update_frames()' onchange="update_frames()"/>
+                                    <input style="width:150px;" type="range" id="frames" min=1 max=20 step=1 value=1 oninput='update_frames()' onchange="update_frames()"/>
                                     <span onclick='dotextbox(this.id)' class='eb_span' id="label_frames"></span>
                                     <input style='width: 80px; display: none;' id='label_frames_input' type='text' value='' onblur='undotextbox(this.id)'>
                                     
