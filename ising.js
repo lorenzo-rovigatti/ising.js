@@ -15,8 +15,8 @@ var ge_avg, ge_var, gm_avg, gm_var;
 var gtable_de;
 var gtable_doflip;
 var gtable_flipprob;
-var wolfp = 1-Math.exp(-2./gT);
-var wolfph = 1-Math.exp(-2. * Math.abs(gfield) /gT);
+var wolfp = 1 - Math.exp(-2. / gT);
+var wolfph = 1 - Math.exp(-2. * Math.abs(gfield) / gT);
 
 var gt = 0;
 var times = [];
@@ -40,6 +40,8 @@ var onefill = 0;
 var dodraw = false;
 var gh = 150;
 var gw = 370;
+var up_color = [71, 94, 116,255];
+var down_color = [193, 240, 219,255];
 
 function rgb(r,g,b) {
     return 'rgb('+r+','+g+','+b+')';
@@ -49,71 +51,62 @@ function log10(val) {
     return Math.log(val) / Math.LN10;
 }
 
-function toFixed(value, precision, negspace) {
-    negspace = typeof negspace !== 'undefined' ? negspace : '';
-    var precision = precision || 0;
-    var sneg = (value < 0) ? "-" : negspace;
-    var neg = value < 0;
-    var power = Math.pow(10, precision);
-    var value = Math.round(value * power);
-    var integral = String(Math.abs((neg ? Math.ceil : Math.floor)(value/power)));
-    var fraction = String((neg ? -value : value) % power);
-    var padding = new Array(Math.max(precision - fraction.length, 0) + 1).join('0');
-    return sneg + (precision ? integral + '.' +  padding + fraction : integral);
-}
-
 function init_board(N, board){
     gt = 0;
     gboard = [];
     gN = N;
 
-    if (board !== null){
-        for (var i=0; i<gN*gN+1; i++)
+    if(board !== null){
+        for(var i = 0; i< N * N; i++)
             gboard[i] = board[i];
-    } else {
-        for (var i=0; i<gN*gN+1; i++)
-            gboard[i] = 2*Math.floor(Math.random()*2) - 1;
+    }
+    else {
+        for(var i = 0; i < N * N; i++)
+            gboard[i] = 2 * Math.floor(Math.random() * 2) - 1;
     }
 
-    gpx_size = canvasN/gN;
+    gpx_size = canvasN / gN;
     display_board(gN, gboard);
     draw_all();
 
     init_measurements();
 }
 
-function put_pixel(x, y, size, color){
-    var xoff = x*size;
-    var yoff = y*size;
-    for (var i=0; i<size; i++){
-        for (var j=0; j<size; j++){
-            var ind = ((yoff+j)*gN*size + xoff+ i)*4;
-            var c = (color+1)/2 * 255;
-            gbufferdata[ind+0] = c;
-            gbufferdata[ind+1] = c;
-            gbufferdata[ind+2] = c;
-            gbufferdata[ind+3] = 255;
+function put_pixel(x, y, size, spin){
+    var xoff = x * size;
+    var yoff = y * size;
+    for(var i = 0; i < size; i++){
+        for(var j = 0; j < size; j++){
+            var ind = ((yoff + j) * gN * size + xoff + i)*4;
+            if(spin == -1) {
+                color = down_color;
+            }
+            else {
+                color = up_color
+            }
+            var c = (color + 1) / 2 * 255;
+            gbufferdata[ind + 0] = color[0];
+            gbufferdata[ind + 1] = color[1];
+            gbufferdata[ind + 2] = color[2];
+            gbufferdata[ind + 3] = color[3];
         }
     }
 }
 
 function display_board(N, board){
-    for (var i=0; i<N; i++){
-        for (var j=0; j<N; j++){
-            put_pixel(i, j, gpx_size, board[N*N] * board[i+j*N]);
+    for(var i = 0; i < N; i++){
+        for(var j = 0; j < N; j++){
+            put_pixel(i, j, gpx_size, board[i + j * N]);
         }
     }
 }
 
 function bond_energy(x, y, N, b){
-    return -b[x+y*N]*(b[x + ((y+1).mod(N))*N] +
-        b[x + ((y-1).mod(N))*N] +
-        b[(x+1).mod(N) + y*N] +
-        b[(x-1).mod(N) + y*N]);
+    return -b[x + y * N]*(b[x + ((y+1).mod(N))*N] + b[x + ((y-1).mod(N))*N] + b[(x+1).mod(N) + y*N] + b[(x-1).mod(N) + y*N]);
 }
 
 function field_energy(x, y, N, b){
-    return -b[x+y*N] * gfield * b[N*N];
+    return -b[x+y*N] * gfield;
 }
 
 function energy(x, y, N, b){
@@ -121,15 +114,12 @@ function energy(x, y, N, b){
 }
 
 function energy_difference(x, y, N, b){
-    return -2*energy(x,y,N,b);
+    return -2. * energy(x,y,N,b);
 }
 
 function neighborCount(x, y, N, b){
-    var i = x+y*N;
-    return 1*(b[x + ((y+1).mod(N))*N] > 0) +
-        1*(b[x + ((y-1).mod(N))*N] > 0) +
-        1*(b[(x+1).mod(N) + y*N] > 0) +
-        1*(b[(x-1).mod(N) + y*N] > 0);
+    var i = x + y * N;
+    return 1*(b[x + ((y+1).mod(N))*N] > 0) + 1*(b[x + ((y-1).mod(N))*N] > 0) + 1*(b[(x+1).mod(N) + y*N] > 0) + 1*(b[(x-1).mod(N) + y*N] > 0);
 }
 
 function update_metropolis(){
@@ -137,16 +127,17 @@ function update_metropolis(){
     var y = Math.floor(Math.random()*gN);
     var ind = x + y*gN;
     var de = energy_difference(x, y, gN, gboard);
-    if (de <= 0 || Math.random() < Math.exp(-de / gT)){
+    if (de <= 0 || Math.random() < Math.exp(-de / gT)) {
         gboard[ind] = -gboard[ind];
 
-        if (!onefill)
-            put_pixel(x, y, gpx_size, gboard[gN*gN] * gboard[x+y*gN]);
+        if (!onefill) {
+            put_pixel(x, y, gpx_size, gboard[x+y*gN]);
+        }
 
-        genergy += 1.0*de/(gN*gN);
-        gmag += 2.0*gboard[ind] * gboard[gN*gN]/(gN*gN);
+        genergy += 1.0 * de / (gN*gN);
+        gmag += 2.0 * gboard[ind] / (gN*gN);
     }
-    gt += 1.0/(gN*gN);
+    gt += 1.0 / (gN*gN);
 }
 
 function update_wolff() {
@@ -292,7 +283,7 @@ function init_measurements(){
     gtimeseries_mavg = [];
     lasttime = Date.now();
     reset_measurements();
-    push_measurement(gt, genergy, gboard[gN * gN] * gmag);
+    push_measurement(gt, genergy, gmag);
 }
 
 function reset_measurements(){
@@ -300,14 +291,15 @@ function reset_measurements(){
     gmag = 0;
     ge_avg = ge_var = gm_avg = gm_var = 0;
 
-    for (var i=0; i<gN; i++){
-    for (var j=0; j<gN; j++){
-        genergy += bond_energy(i,j,gN, gboard) / 2;
-        genergy += field_energy(i,j,gN, gboard);
-        gmag += gboard[i+gN*j];
-    }}
+    for(var i = 0; i < gN; i++) {
+        for(var j = 0; j < gN; j++) {
+            genergy += bond_energy(i,j,gN, gboard) / 2;
+            genergy += field_energy(i,j,gN, gboard);
+            gmag += gboard[i + gN * j];
+        }
+    }
     genergy /= gN*gN;
-    gmag *= gboard[gN * gN] / (gN*gN);
+    gmag /= gN*gN;
 
     ge_avg = genergy;
     gm_avg = gmag;
@@ -315,19 +307,15 @@ function reset_measurements(){
 }
 
 function update_measurements_labels(){
-    lblt = document.getElementById('label_time');
-    lble = document.getElementById('label_energy');
-    lblm = document.getElementById('label_mag');
-
-    lblt.innerHTML = "time = "+toFixed(gt, 3, ' ')+"   sweeps/sec = "+toFixed(sps, 3, ' ');
-    lble.innerHTML = "e = "+toFixed(genergy, 3, ' ');
-    lblm.innerHTML = "m = "+toFixed(gmag, 3, ' ');
-
-    lble.innerHTML += "   &lt;e&gt; = "+toFixed(ge_avg, 3, ' ');
-    lblm.innerHTML += "   &lt;m&gt; = "+toFixed(gm_avg, 3, ' ');
-
-    lble.innerHTML += "   Var(e) = "+toFixed(ge_var, 3, ' ');
-    lblm.innerHTML += "   Var(m) = "+toFixed(gm_var, 3, ' ');
+    document.getElementById("current-time").innerHTML = gt.toFixed(2);
+    document.getElementById("current-energy").innerHTML = genergy.toFixed(3);
+    document.getElementById("current-magnetization").innerHTML = gmag.toFixed(3);
+    
+    document.getElementById("average-energy").innerHTML = ge_avg.toFixed(3);
+    document.getElementById("average-magnetization").innerHTML = gm_avg.toFixed(3);
+    
+    document.getElementById("variance-energy").innerHTML = ge_var.toFixed(3);
+    document.getElementById("variance-magnetization").innerHTML = gm_var.toFixed(3);
 }
 
 function hidden_link_download(uri, filename){
@@ -364,8 +352,9 @@ function download_graph(){
 }
 
 function draw_all(){
-    if (onefill)
+    if(onefill) {
         display_board(gN, gboard);
+    }
 
     gbuffer.data = gbufferdata;
     ctx.putImageData(gbuffer, 0, 0);
@@ -410,18 +399,13 @@ function undotextbox(id){
 }
 
 function update_temp(){
-    min = document.getElementById('temp').min;
-    gTval = parseFloat(document.getElementById('temp').value);
-    if (gTval <= min)
-        gT = 0;
-    else
-        gT = Math.pow(10, gTval);
-    document.getElementById('label_temp').innerHTML = toFixed(gT,6);
+    gT = parseFloat(document.getElementById('temp').value);
+    document.getElementById('label_temp').innerHTML = gT.toFixed(3);
     calculateFlipTable(gT, gfield);
 }
 function update_field(){
     gfield = parseFloat(document.getElementById('field').value);
-    document.getElementById('label_field').innerHTML = toFixed(gfield,6);
+    document.getElementById('label_field').innerHTML = gfield.toFixed(3);
     calculateFlipTable(gT, gfield);
     reset_measurements();
 }
@@ -438,9 +422,9 @@ function update_frames(){
 }
 
 function update_display(){
-    document.getElementById('label_temp').innerHTML = toFixed(gT,6);
-    document.getElementById('label_field').innerHTML = toFixed(gfield,6);
-    document.getElementById('label_frames').innerHTML = toFixed(frameskip,6);
+    document.getElementById('label_temp').innerHTML = gT.toFixed(3);
+    document.getElementById('label_field').innerHTML = gfield.toFixed(3);
+    document.getElementById('label_frames').innerHTML = frameskip.toFixed(6);
 }
 
 function update_method() {
@@ -449,15 +433,16 @@ function update_method() {
     if (document.getElementById('method_wolff').checked) {
         update_func = 'wolff';
         frameskip = 2;
-        frame_label.innerHTML = toFixed(frameskip,0);
+        frame_label.innerHTML = frameskip.toFixed(0);
         frame_slider.step = 1;
-        frame_slider.max=20;
-        frame_slider.min=1;
+        frame_slider.max = 20;
+        frame_slider.min = 1;
         frame_slider.value = frameskip;
-    } else  {
+    } 
+    else  {
         update_func = 'metropolis';
         frameskip = Math.pow(10.,0);
-        frame_label.innerHTML = toFixed(1,6);
+        frame_label.innerHTML = frameskip.toFixed(6);
         frame_slider.step = 0.01;
         frame_slider.max=2;
         frame_slider.min=-2;
@@ -565,7 +550,8 @@ function draw_series_graph(xl, yl){
         ctxgraph.moveTo(xaxis-5, y);
         ctxgraph.lineTo(xaxis, y);
         ctxgraph.stroke();
-        ctxgraph.fillText(toFixed(i*ytic_major+(ymin+ymax)/2, 3), 0, y+4);
+        var value = i*ytic_major+(ymin+ymax) / 2;
+        ctxgraph.fillText(value.toFixed(3), 0, y+4);
     }
 
     for (var i=-idy*5; i<=idy*5; i++){
@@ -649,7 +635,12 @@ var init = function() {
         return ((this%n)+n)%n;
     }
     
+    document.getElementById('temp').defaultValue = gT;
+    document.getElementById("control-form").reset();
+    document.getElementById("results-form").reset();
+    
     const checkbox = document.getElementById('toggle-advanced-controls')
+    
     checkbox.addEventListener('change', (event) => {
         if(event.target.checked) {
             document.getElementById("advanced-controls").style.display = "block";
@@ -662,16 +653,9 @@ var init = function() {
     document.getElementById('label_temp_input').addEventListener("keydown", function(e) {
         if (e.keyCode == 13){
             e.preventDefault();
-            step = document.getElementById('temp').step;
-            min = document.getElementById('temp').min;
             tval = parseFloat(document.getElementById('label_temp_input').value);
 
-            if (tval <= Math.pow(10, min))
-                logval = min - 2*step;
-            else
-                logval = log10(tval);
-
-            document.getElementById('temp').value = logval;
+            document.getElementById('temp').value = tval;
             update_temp();
             undotextbox('label_temp_input');
         }
@@ -716,7 +700,6 @@ var init = function() {
 };
 
 window.onload = init;
-
 
 // Provides requestAnimationFrame in a cross browser way.
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
